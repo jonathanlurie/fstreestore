@@ -1,4 +1,7 @@
 const Store = require('..')
+const FtsCodec = Store.FtsCodec
+
+
 
 let s = new Store('myStore01')
 // console.log(s.isValidKey('tdlqj-dlj767-665yu'))

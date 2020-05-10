@@ -5,7 +5,7 @@ const fs = require('fs').promises
 
 const VALID_KEY_CHAR = 'abcdefghijklmnopqstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_'
 const MAX_KEY_LENGTH = 36
-const VALUE_FILE_NAME = 'value.fsts'
+const VALUE_FILE_NAME = 'value.fts'
 
 class Store {
 
