@@ -29,11 +29,8 @@ class Store {
    * @param {*} key 
    */
   isValidKey (key) {
-    if (key.length > MAX_KEY_LENGTH) {
-      return false
-    }
-
-    if (key === VALUE_FILE_NAME) {
+    if (key.length > MAX_KEY_LENGTH // must be not too long
+    ||  key.length < 1) {           // but not too short
       return false
     }
 
