@@ -17,7 +17,6 @@ class Store {
 
 
   async init() {
-    console.log('here')
     try {
       await fs.access(this._path)
     } catch(err) {

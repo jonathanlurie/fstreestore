@@ -31,6 +31,8 @@ const TYPED_ARRAY_CONSTRUCTORS = [
   Float64Array,
 ]
 
+const DATA_BYTE_OFFSET = MAGIC.length + DATA_TYPE_CODE.string.length
+
 
 /**
  * Fts stands for Filesystem Tree Store. It is a simple binary format
@@ -115,12 +117,11 @@ class FtsCodec {
    */
   static decode(buffer, options = {}) {
     let mustThrow = 'throw' in options ? options.throw : false
-    const dataByteOffset = MAGIC.length + DATA_TYPE_CODE.string.length
-
+    
     // The buffer must be at least the size of the magic number + the size of the data type code.
     // Note: if data is empty (an empty typed array or an empty string was encded) it's a bit
     // of a pain but we kinda have to deal with this case...
-    const dataByteLength = buffer.byteLength - dataByteOffset
+    const dataByteLength = buffer.byteLength - DATA_BYTE_OFFSET
     if (dataByteLength < 0) {
       if (mustThrow) {
         throw new Error('Invalid FTS file.')
@@ -154,37 +155,37 @@ class FtsCodec {
       if (dataByteLength === 0) {
         return ''
       } else {
-        return new TextDecoder().decode(new Uint8Array(buffer, dataByteOffset))
+        return new TextDecoder().decode(new Uint8Array(buffer, DATA_BYTE_OFFSET))
       }
     
     } else if (dataType === DATA_TYPE_CODE.boolean) {
-      return !!(new Uint8Array(buffer, dataByteOffset)[0])
+      return !!(new Uint8Array(buffer, DATA_BYTE_OFFSET)[0])
     } else if (dataType === DATA_TYPE_CODE.object) {
-      return JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, dataByteOffset)))
+      return JSON.parse(new TextDecoder().decode(new Uint8Array(buffer, DATA_BYTE_OFFSET)))
     } else if (dataType === DATA_TYPE_CODE.uint8) {
-      return new Uint8Array(buffer, dataByteOffset)
+      return new Uint8Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.int8) {
-      return new Int8Array(buffer, dataByteOffset)
+      return new Int8Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.uint16) {
-      return new Uint16Array(buffer, dataByteOffset)
+      return new Uint16Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.int16) {
-      return new Int16Array(buffer, dataByteOffset)
+      return new Int16Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.uint32) {
-      return new Uint32Array(buffer, dataByteOffset)
+      return new Uint32Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.int32) {
-      return new Int32Array(buffer, dataByteOffset)
+      return new Int32Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.float32) {
-      return new Float32Array(buffer, dataByteOffset)
+      return new Float32Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.float64) {
-      return new Float64Array(buffer, dataByteOffset)
+      return new Float64Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.float64s) {
-      return new Float64Array(buffer, dataByteOffset)[0]
+      return new Float64Array(buffer, DATA_BYTE_OFFSET)[0]
     } else if (dataType === DATA_TYPE_CODE.uint64) {
-      return new BigUint64Array(buffer, dataByteOffset)
+      return new BigUint64Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.int64) {
-      return new BigInt64Array(buffer, dataByteOffset)
+      return new BigInt64Array(buffer, DATA_BYTE_OFFSET)
     } else if (dataType === DATA_TYPE_CODE.int64s) {
-      return Number(new BigInt64Array(buffer, dataByteOffset)[0])
+      return Number(new BigInt64Array(buffer, DATA_BYTE_OFFSET)[0])
     }
 
 
