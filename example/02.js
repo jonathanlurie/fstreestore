@@ -58,9 +58,9 @@ async function benchmark(iterations = 100) {
   console.log('DELETE time (ms):', t, '  iterations:', iterations, ' ops:', ops)
   
   // LIST
-  let presentKeys = await s.list()
-  console.log('presentKeys', presentKeys)
+  // let presentKeys = await s.list()
+  // console.log('presentKeys', presentKeys)
   
 }
 
-benchmark(1000)
+benchmark(5002)

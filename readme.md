@@ -1,15 +1,16 @@
 # FSTREESTORE
-Filesystem-Tree-Store is a naive hobby *key-value* store.  
+FSTREESTORE is a *key-value* store that relies entirely on the filesystem and file/folder tree structure. No server.
 
 Here are some features:
 - Entirely based on the filesystem
-- Five operations: `has`, `set`, `get`, `remove`, `list`
+- Five simple operations: `has`, `set`, `get`, `remove`, `list`
+- Fast listing with indexing and self sanitizing
 - No server required
 - A database is just a folder (easy backup, migrate, delete)
 - Need multiple stores? Just instanciate multiple `Store` on different folders
 - No low-level dependencies
 - OK fast
-- Keys must be strings of length [1-36] with alphanumeric, dashes and underscores
+- Keys can contain any utf-8 characters (emoji, Chinese, etc.) and as long as 36 characters
 - Values can be `null`, *String*, *Number*, *Array*, *Object*, *TypedArray* (including BigInt and Float64) and *Boolean*
 - Numerical values are automatically saved as float or int on 64 bits. Strings are utf-8
 - Serialization file format is efficient, versatile and simple
@@ -81,7 +82,7 @@ main()
 ```
 
 # Key format
-The only constraint for the keys is that they are at least 1 character long and at most 36. Apart from that, all the utf-8 charaters are possible, including emojis, accentuated, chinese, etc.
+The only constraint for the keys is that they are at least 1 character long and at most 36. Apart from that, all the utf-8 charaters are possible, including emojis, accentuated, Chinese, etc.
 
 Example:
 ```js
@@ -93,16 +94,16 @@ FSTREESTORE will throw errors if the provided key does not respect (empty string
 
 In addition, the `.get()` will throw an error if the key is not existing. To prevent `get` from thowing, it must be used as follow `.get('some key', {throw: false})`, then a `null` value will be returned if `'some key'` does not exist.
 
-# Listing and things to not do
-Since FSTREESTORE's database are entirely based on filesystem, it makes all the data easily accessible, but the files and folder in there are to be accessed by FSTREESTORE and should not be modified manually, otherwise the whole DB might get corrupted.
+# Listing and precautions
+Since FSTREESTORE's database are entirely based on the filesystem, it makes all the data easily accessible, but the files and folder in there are to be accessed only by FSTREESTORE and should not be modified manually, otherwise the whole DB might get corrupted.
 
-This is particularly true for the `list` file, that makes the listing possible in a reasonable amout of time, without having to walk through all the folders and sub folders.
+This is particularly true for the `list` file, that makes the listing possible in a reasonable amount of time. This file keeps an index of what is added and removed. Every time `.list()` is called, the list file gets sanitized under the hood, removing duplicates and deleted keys to keep only the remaining keys. The list is automatically sanitized every 5000 set/remove operations.
 
 # Compatibility
-FSTREESTORE was developed and tested on MacOS and probably works on Linux. It was not tested on Windows and I am pretty it would not work due to the Windows filesystem being so different from Unix-like fs.
+FSTREESTORE was developed and tested on MacOS and probably works on Linux. It was not tested on Windows and I am pretty sure it would not work due to the Windows filesystem being very different from Unix-like fs.
 
 # Why?
-The idea first came when I started to look for a *key-value* store that I could run close to a Nodejs app, that did not require a server and was fast and versatile enough. I stumble upon the excelent **LMDB** (and its [Node wrapper](https://www.npmjs.com/package/node-lmdb)) and started playing with it. Then I wondered how it was working under the hood and looked up B+ trees and stuff like that, and even though **FSTREESTORE** does not use a B+ tree, it's still loosely inspired by this concept. Also, not relying on low level dependencies can prevent having some plateform issues.  
+The idea first came when I started to look for a *key-value* store that I could run close to a Nodejs app, that did not require a server and was fast and versatile enough. I stumbled upon the excellent **LMDB** (and its [Node wrapper](https://www.npmjs.com/package/node-lmdb)) and started playing with it. Then I wondered how it was working under the hood and looked up B+ trees and stuff like that, and even though **FSTREESTORE** does not use a B+ tree, it's still loosely inspired by this concept. Also, not relying on low level dependencies can prevent having some plateform issues.  
 Finally, the main reason is that it was fun to to and I was curious about the performance of such a naive store implementation.
 
 # Performance
@@ -113,4 +114,4 @@ READ time (ms): 372.39405900239944   iterations: 1000  ops: 2685
 DELETE time (ms): 651.8716329932213   iterations: 1000  ops: 1534
 ```
 
-Obviously, these are nowhere near the ~50000 operations per seconds (ops) I get with `LMDB` in the same conditions, but I knew since the very begining that I would never be even close with such a naive approach that relies entirely on creating hundreds of files on the filesystem!
+Obviously, these are nowhere near the ~50000 operations per seconds (ops) I get with `LMDB` in the same conditions, but I knew since the very begining that I would never be even close with such a naive approach that relies entirely on creating folders and files on the filesystem!

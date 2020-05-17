@@ -10,6 +10,7 @@ const VALUE_FILE_NAME = 'value.fts'
 const LISTING_FILE = 'list'
 const LIST_ADD_CHAR = '>'
 const LIST_REM_CHAR = '<'
+const OPERATIONS_BEFORE_LIST_SANITIZING = 5000
 
 
 class Store {
@@ -17,6 +18,7 @@ class Store {
   constructor(dbPath, options = {}) {
     this._path = dbPath
     this._listPath = path.join(this._path, LISTING_FILE)
+    this._listSanitizeCounter = 0
   }
 
 
@@ -76,12 +78,22 @@ class Store {
 
   
   async _addKeyToList(key) {
+    this._listSanitizeCounter += 1
     await fs.appendFile(this._listPath, `${LIST_ADD_CHAR}${key}\n`)
+
+    if (this._listSanitizeCounter / OPERATIONS_BEFORE_LIST_SANITIZING > 1) {
+      await this.list()
+    }
   }
 
 
   async _removeKeyFromList(key) {
+    this._listSanitizeCounter += 1
     await fs.appendFile(this._listPath, `${LIST_REM_CHAR}${key}\n`)
+
+    if (this._listSanitizeCounter / OPERATIONS_BEFORE_LIST_SANITIZING >= 1) {
+      await this.list()
+    }
   }
 
 
@@ -113,6 +125,7 @@ class Store {
     let presentKeys = Object.keys(index)
     let newListFileContent = presentKeys.map(k => `${LIST_ADD_CHAR}${k}\n`).join('')
     await fs.writeFile(this._listPath, newListFileContent)
+    this._listSanitizeCounter = 0
     return presentKeys
   }
 
