@@ -7,12 +7,16 @@ const FtsCodec = require('./FtsCodec')
 const VALID_KEY_CHAR = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_'
 const MAX_KEY_LENGTH = 36
 const VALUE_FILE_NAME = 'value.fts'
+const LISTING_FILE = 'list'
+const LIST_ADD_CHAR = '>'
+const LIST_REM_CHAR = '<'
 
 
 class Store {
 
-  constructor(path, options = {}) {
-    this._path = path
+  constructor(dbPath, options = {}) {
+    this._path = dbPath
+    this._listPath = path.join(this._path, LISTING_FILE)
   }
 
 
@@ -23,7 +27,6 @@ class Store {
       await fs.mkdir(this._path, {recursive: true})
     }
   }
-
 
   
   /**
@@ -78,6 +81,48 @@ class Store {
   }
 
   
+  async _addKeyToList(key) {
+    await fs.appendFile(this._listPath, `${LIST_ADD_CHAR}${key}\n`)
+  }
+
+
+  async _removeKeyFromList(key) {
+    await fs.appendFile(this._listPath, `${LIST_REM_CHAR}${key}\n`)
+  }
+
+
+  async list(force = false) {
+    if (force) {
+      console.warn('This feature is not implemented yet')
+    }
+
+    let listFileContent = (await fs.readFile(this._listPath, 'utf8')).split('\n')
+    let index = {}
+
+    for (let i = 0; i < listFileContent.length; i += 1) {
+      let line = listFileContent[i]
+
+      if (line.length === 0) {
+        continue
+      }
+
+      let insertionChar = line[0]
+      let key = line.slice(1).trim()
+
+      if (insertionChar === LIST_ADD_CHAR) {
+        index[key] = true
+      } else if (insertionChar === LIST_REM_CHAR) {
+        delete index[key]
+      }
+    }
+
+    let presentKeys = Object.keys(index)
+    let newListFileContent = presentKeys.map(k => `${LIST_ADD_CHAR}${k}\n`).join('')
+    await fs.writeFile(this._listPath, newListFileContent)
+    return presentKeys
+  }
+
+
   async remove (key) {
     if(!this.isValidKey(key)) {
       throw new Error(`The key must contain only alphanumeric, dash and underscore characters. The length cannot be greater than ${MAX_KEY_LENGTH}. The key ${VALUE_FILE_NAME} is reserved.`)
@@ -90,6 +135,7 @@ class Store {
 
       // removing the value file
       await fs.unlink(valuePath)
+      await this._removeKeyFromList(key)
 
       let pathsToRoot = []
       for (let i = 1; i <= key.length; i += 1) {
@@ -146,6 +192,7 @@ class Store {
     // create the value file (no matter if it exists)
     let ftsBuff = FtsCodec.encode(value)
     await fs.writeFile(valuePath, Buffer.from(ftsBuff), 'binary')
+    await this._addKeyToList(key)
   }
 
 

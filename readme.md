@@ -3,7 +3,7 @@ Filesystem-Tree-Store is a naive hobby *key-value* store.
 
 Here are some features:
 - Entirely based on the filesystem
-- Four operations: `has`, `set`, `get`, `remove`
+- Five operations: `has`, `set`, `get`, `remove`, `list`
 - No server required
 - A database is just a folder
 - Need multiple stores? Just instanciate multiple `Store` on different folders

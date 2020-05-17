@@ -12,7 +12,9 @@ function randStr(length) {
   return result
 }
 
-let s = new Store('myStore02')
+// let s = new Store('myStore02')
+let s = new Store('/Users/lurie/Desktop/some_folder')
+
 
 
 async function benchmark(iterations = 100) {
@@ -25,6 +27,7 @@ async function benchmark(iterations = 100) {
   //   )
   // })
   
+  // SET
   let t0 = performance.now()
   for (let i = 0; i < iterations; i += 1) {
     await s.set(keys[i], values[i])
@@ -34,6 +37,7 @@ async function benchmark(iterations = 100) {
   let ops = ~~(iterations / (t / 1000) )
   console.log('CREATE time (ms):', t, '  iterations:', iterations, ' ops:', ops)
 
+  // GET
   t0 = performance.now()
   for (let i = 0; i < iterations; i += 1) {
     let val = await s.get(keys[i])
@@ -43,6 +47,7 @@ async function benchmark(iterations = 100) {
   ops = ~~(iterations / (t / 1000) )
   console.log('READ time (ms):', t, '  iterations:', iterations, ' ops:', ops)
 
+  // REMOVE
   t0 = performance.now()
   for (let i = 0; i < iterations; i += 1) {
     await s.remove(keys[i])
@@ -51,6 +56,11 @@ async function benchmark(iterations = 100) {
   t = t1 - t0
   ops = ~~(iterations / (t / 1000) )
   console.log('DELETE time (ms):', t, '  iterations:', iterations, ' ops:', ops)
+  
+  // LIST
+  let presentKeys = await s.list()
+  console.log('presentKeys', presentKeys)
+  
 }
 
-benchmark(1000)
+benchmark(10)
