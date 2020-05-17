@@ -39,13 +39,6 @@ class Store {
       return false
     }
 
-    for (let i = 0; i < key.length; i += 1) {
-      if (!VALID_KEY_CHAR.includes(key[i])) {
-        console.log(key[i])
-        
-        return false
-      }
-    }
     return true
   }
 
@@ -69,7 +62,8 @@ class Store {
       throw new Error(`The key must contain only alphanumeric, dash and underscore characters. The length cannot be greater than ${MAX_KEY_LENGTH}. The key ${VALUE_FILE_NAME} is reserved.`)
     }
 
-    let keyPath = this._keyToPath(key)
+    const encodedKey = encodeURIComponent(key)
+    let keyPath = this._keyToPath(encodedKey)
     let valuePath = path.join(keyPath, VALUE_FILE_NAME)
 
     try {
@@ -128,7 +122,8 @@ class Store {
       throw new Error(`The key must contain only alphanumeric, dash and underscore characters. The length cannot be greater than ${MAX_KEY_LENGTH}. The key ${VALUE_FILE_NAME} is reserved.`)
     }
 
-    let keyPath = this._keyToPath(key)
+    const encodedKey = encodeURIComponent(key)
+    let keyPath = this._keyToPath(encodedKey)
     let valuePath = path.join(keyPath, VALUE_FILE_NAME)
 
     try {
@@ -138,9 +133,9 @@ class Store {
       await this._removeKeyFromList(key)
 
       let pathsToRoot = []
-      for (let i = 1; i <= key.length; i += 1) {
+      for (let i = 1; i <= encodedKey.length; i += 1) {
         pathsToRoot.push(
-          this._keyToPath(key.slice(0, i))
+          this._keyToPath(encodedKey.slice(0, i))
         )
       }
       // paths from the closest to the removed value up to the root
@@ -179,7 +174,8 @@ class Store {
       throw new Error(`The key must contain only alphanumeric, dash and underscore characters. The length cannot be greater than ${MAX_KEY_LENGTH}. The key ${VALUE_FILE_NAME} is reserved.`)
     }
 
-    let keyPath = this._keyToPath(key)
+    const encodedKey = encodeURIComponent(key)
+    let keyPath = this._keyToPath(encodedKey)
     let valuePath = path.join(keyPath, VALUE_FILE_NAME)
 
     // creating the key folder if it does not exist
@@ -202,11 +198,11 @@ class Store {
     }
 
     const mustThrow = 'throw' in options ? options.throw : true
-
+    
     let exists = false
     let errorMessage = ''
-
-    let keyPath = this._keyToPath(key)
+    const encodedKey = encodeURIComponent(key)
+    let keyPath = this._keyToPath(encodedKey)
     let valuePath = path.join(keyPath, VALUE_FILE_NAME)
 
     try {

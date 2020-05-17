@@ -13,7 +13,7 @@ function randStr(length) {
 }
 
 // let s = new Store('myStore02')
-let s = new Store('/Users/lurie/Desktop/some_folder')
+let s = new Store('/Users/jonathanlurie/Desktop/someDb')
 
 
 
@@ -63,4 +63,4 @@ async function benchmark(iterations = 100) {
   
 }
 
-benchmark(10)
+benchmark(1000)

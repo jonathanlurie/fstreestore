@@ -1,20 +1,21 @@
 const MAGIC = 'FTS'
 const DATA_TYPE_CODE = { // they must all be of the same length
-  string:   'str__',
-  boolean:  'bool_',
-  object:   'obj__',
-  uint8:    'u8___',
-  int8:     'i8___',
-  uint16:   'u16__',
-  int16:    'i16__',
-  uint32:   'u32__',
-  int32:    'i32__',
-  uint64:   'u64__',
-  int64:    'i64__',
-  int64s:   'i64s_', // the ending 's' stands for 'single number
-  float32:  'f32__',
-  float64:  'f64__',
-  float64s: 'f64s_', // the ending 's' stands for 'single number
+  nullvalue: 'null_',
+  string:    'str__',
+  boolean:   'bool_',
+  object:    'obj__',
+  uint8:     'u8___',
+  int8:      'i8___',
+  uint16:    'u16__',
+  int16:     'i16__',
+  uint32:    'u32__',
+  int32:     'i32__',
+  uint64:    'u64__',
+  int64:     'i64__',
+  int64s:    'i64s_', // the ending 's' stands for 'single number
+  float32:   'f32__',
+  float64:   'f64__',
+  float64s:  'f64s_', // the ending 's' stands for 'single number
 }
 
 const TYPED_ARRAY_CONSTRUCTORS = [
@@ -49,7 +50,10 @@ class FtsCodec {
     let dataType = null
 
     // dealing with different kinds of data types...
-    if (data.constructor === String) {  // data is a string
+    if (data === null) {
+      dataBuf = new ArrayBuffer()
+      dataType = DATA_TYPE_CODE.nullvalue
+    } else if (data.constructor === String) {  // data is a string
       dataBuf = new TextEncoder().encode(data).buffer
       dataType = DATA_TYPE_CODE.string
     } else if (data.constructor === Number) {  // data is a single number
@@ -151,7 +155,9 @@ class FtsCodec {
     }
 
     // deal with all the cases
-    if (dataType === DATA_TYPE_CODE.string) {
+    if (dataType === DATA_TYPE_CODE.nullvalue) {
+      return null
+    } else if (dataType === DATA_TYPE_CODE.string) {
       if (dataByteLength === 0) {
         return ''
       } else {
